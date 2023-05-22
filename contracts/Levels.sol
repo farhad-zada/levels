@@ -7,19 +7,25 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 error NotAdmin();
 
 contract Levels is OwnableUpgradeable, UUPSUpgradeable {
+    
     mapping(address => uint64) private levels;
-    mapping(address => bool) public admins;
+    mapping(address => bool) private admins;
+    address[] private adminsList;
 
+    event SetLevel(address to, uint256 level);
+    
     constructor() {
-        _disableInitializers();
+            _disableInitializers();
     }
 
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
-
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
     function initialize() public initializer {
         admins[msg.sender] = true;
+        adminsList.push(msg.sender);
         __Ownable_init();
     }
 
@@ -32,18 +38,39 @@ contract Levels is OwnableUpgradeable, UUPSUpgradeable {
         return levels[who];
     }
 
+    //Adming functions
     function setLevel(
-        address who,
+        address to,
         uint64 _level
-    ) public isAdmin returns (bool success) {
-        levels[who] = _level;
-        if (levels[who] != _level) {
-            return false;
-        }
-        return true;
+    ) public isAdmin  {
+
+        levels[to] = _level;
+        emit SetLevel(to, _level);
+
     }
 
-    function setAdmin(address admin, bool boolean) public onlyOwner {
-        admins[admin] = boolean;
+    function setAdmin(address admin, bool status) public onlyOwner {
+        if (status == true && !admins[admin]) {
+            adminsList.push(admin);
+        } else if (admins[admin] && !status) {
+            for (uint i = 0; i < adminsList.length; i++) {
+                if (adminsList[i] == admin) {
+                    delete adminsList[i];
+                    break;
+                }
+            }
+
+        } else if (admins[admin] && status) {
+            return;
+        }
+        admins[admin] = status;
+    }
+
+    function ifAdmin(address account) public view returns (bool) {
+        return admins[account];
+    }
+    
+    function getAdminsList() public view onlyOwner returns (address[] memory) {
+        return adminsList;
     }
 }
