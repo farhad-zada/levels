@@ -1,5 +1,5 @@
 {
-  "name": "nft",
+  "name": "levels",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "console": "npx hardhat console --network hardhat"
   },
-  "author": "",
+  "author": "farhad.szd@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
